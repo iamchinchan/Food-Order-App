@@ -21,7 +21,7 @@ const MealItemForm =(props)=>{
             id:"amount_"+props.id, //will be a string-> ex: "amount_1, amount_2.."
             type:"number",
             min:'1',
-            max:'6',
+            max:'5',
             step:'1',
             defaultValue:'1',
             ref:amountInputRef
