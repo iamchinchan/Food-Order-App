@@ -11,7 +11,7 @@ const MealItemForm =(props)=>{
         const enteredAmountNumber = +enteredAmount; //string to number
         if(enteredAmount.trim().length===0 || enteredAmountNumber <1 || enteredAmountNumber>5){
             setAmountIsValid(false);
-            return;//doubt(cleared)
+            return; 
         }
         setAmountIsValid(true);
         props.onAddToCart(enteredAmountNumber); //lifting the state up.
