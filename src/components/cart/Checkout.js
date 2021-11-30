@@ -56,7 +56,7 @@ const Checkout = (props) => {
     if (!nameIsValid || !streetIsValid || !cityIsValid || !postalIsValid) {
       return;
     }
-    //submit the form data
+    //submit the form data by calling fn in cart
     nameReset();
     streetReset();
     cityReset();
