@@ -1,36 +1,51 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styles from "../../css/MealsAvailable.module.css";
 import Card from "../ui/Card";
 import MealItem from "./mealItem/Mealitem";
+import useHttp from "../../customHooks/useHttp";
+import { useState } from "react/cjs/react.development";
 
-const DUMMY_MEALS = [
-  {
-    id: "m1",
-    name: "Sushi",
-    description: "Finest fish and veggies",
-    price: 22.99,
-  },
-  {
-    id: "m2",
-    name: "Schnitzel",
-    description: "A german specialty!",
-    price: 16.5,
-  },
-  {
-    id: "m3",
-    name: "Barbecue Burger",
-    description: "American, raw, meaty",
-    price: 12.99,
-  },
-  {
-    id: "m4",
-    name: "Green Bowl",
-    description: "Healthy...and green...",
-    price: 18.99,
-  },
-];
 const MealsAvailable = () => {
-  const mealsList = DUMMY_MEALS.map((meal) => (
+  const [meals, setMeals] = useState([]);
+  const { isLoading, error, sendRequest: fetchMeals } = useHttp();
+  useEffect(() => {
+    const getMealsHandler = (mealsData) => {
+      console.log("meals data is: ", mealsData);
+      const fetchedMeals = [];
+
+      for (const mealKey in mealsData) {
+        fetchedMeals.push({
+          id: mealKey,
+          name: mealsData[mealKey].name,
+          description: mealsData[mealKey].description,
+          price: mealsData[mealKey].price,
+        });
+      }
+      setMeals(fetchedMeals);
+    };
+    fetchMeals(
+      {
+        url: "https://food-order-app-a0665-default-rtdb.firebaseio.com/meals.json",
+      },
+      getMealsHandler
+    );
+  }, [fetchMeals]);
+
+  if (isLoading) {
+    return (
+      <section className={styles.MealsLoading}>
+        <p>Loading...</p>
+      </section>
+    );
+  }
+  if (error) {
+    return (
+      <section className={styles.MealsError}>
+        <p>{error}</p>
+      </section>
+    );
+  }
+  const mealsList = meals.map((meal) => (
     <MealItem
       id={meal.id}
       key={meal.id}
