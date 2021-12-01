@@ -57,6 +57,12 @@ const Checkout = (props) => {
       return;
     }
     //submit the form data by calling fn in cart
+    props.onConfirm({
+      name:nameValue,
+      city:cityValue,
+      postal:postalValue,
+      street:streetValue,
+    });
     nameReset();
     streetReset();
     cityReset();

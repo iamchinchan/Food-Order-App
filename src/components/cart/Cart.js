@@ -1,11 +1,13 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import Modal from "../ui/Modal";
 import styles from "../../css/Cart.module.css";
 import CartItem from "./CartItem";
 import CartContext from "../../store/cart-context";
 import Checkout from "./Checkout";
-import { useState } from "react/cjs/react.development";
+import useHttp from "../../customHooks/useHttp";
 const Cart = (props) => {
+  const [submitDone, setSubmitDone] = useState(false);
+  const { isLoading, error, sendRequest: sendOrder } = useHttp();
   const [isCheckout, setIsCheckout] = useState(false);
   const cartCtx = useContext(CartContext);
   const totalPrice = `$${cartCtx.totalPrice.toFixed(2)}`;
@@ -39,7 +41,28 @@ const Cart = (props) => {
       })}
     </ul>
   );
-
+  const onConfirmHandler = (userData) => {
+    const responseOrder = (response) => {
+      // using response if needed
+      setSubmitDone(true);
+      cartCtx.clearCart();
+    };
+    //send data to firebase
+    sendOrder(
+      {
+        url: "https://food-order-app-a0665-default-rtdb.firebaseio.com/orders.json",
+        method: "Post",
+        headers: {
+          "Content-Type": "Application/json",
+        },
+        body: {
+          user:  userData,
+          orderItems:cartCtx.items,
+        },
+      },
+      responseOrder
+    );
+  };
   const orderActions = (
     <div className={styles.actions}>
       <button className={styles["button--alt"]} onClick={props.onClose}>
@@ -53,16 +76,46 @@ const Cart = (props) => {
       )}
     </div>
   );
-  return (
-    <Modal onCloseCart={props.onClose}>
+  const cartData = (
+    <React.Fragment>
       {cartItems}
       <div className={styles.total}>
         <span>Total Price</span>
         <span>{totalPrice}</span>
       </div>
-      {isCheckout && <Checkout onCancelOrder={props.onClose} />}
+      {isCheckout && hasItems &&(
+        <Checkout onConfirm={onConfirmHandler} onCancelOrder={props.onClose} />
+      )}
       {!isCheckout && orderActions}
-    </Modal>
+      {isCheckout && !hasItems && orderActions}
+    </React.Fragment>
   );
+  const loadingData = <p>Sending Order data...</p>;
+  const errorData = <p>Something went Wrong..</p>;
+
+  let showData = <React.Fragment>{cartData}</React.Fragment>;
+
+  if (error) {
+    showData = errorData;
+  }
+  // else{
+  //   showData=<React.Fragment>
+  //     <p>No items Avaiable.</p>
+  //     {orderActions}
+  //   </React.Fragment>
+  // }
+  if (isLoading && !submitDone) {
+    showData = loadingData;
+  }
+  if (!isLoading && submitDone) {
+    showData = (
+      <React.Fragment>
+        <p>Successfully sent orders.</p>
+        {orderActions}
+      </React.Fragment>
+    );
+  }
+
+  return <Modal onCloseCart={props.onClose}>{showData}</Modal>;
 };
 export default Cart;
