@@ -112,7 +112,7 @@ const Checkout = (props) => {
           onChange={postalChangeHandler}
         />
         {postalHasError && (
-          <p>Please enter a valid postal(5 characters/digits)!</p>
+          <p>Please enter a valid postal(6 characters/digits)!</p>
         )}
       </div>
       <div className={cityClasses}>
